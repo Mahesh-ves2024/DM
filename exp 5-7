@@ -1,0 +1,304 @@
+Exp5:
+Experiment 5: Spam Detection using Naïve Bayes
+Classification / NLP
+1. What is Naïve Bayes?
+Naïve Bayes is a supervised machine learning algorithm based on Bayes' Theorem.
+
+It is commonly used for:
+- Spam detection.
+- Sentiment analysis.
+- Text classification.
+- Email filtering.
+It assumes that features are independent of each other given the class.
+2. Bayes' Theorem
+\[
+P(A|B)=\frac{P(B|A)P(A)}{P(B)}
+\]
+
+In spam detection:
+- A = Email is spam.
+- B = Email contains certain words.
+- P(A|B) = Probability that the email is spam given those words.
+3. Working
+1. Collect labelled spam and ham messages.
+2. Convert text into numerical features.
+3. Calculate probabilities.
+4. Predict whether a new message is spam or ham.
+Important terms:
+- Prior probability: Probability of a class before seeing the message.
+- Likelihood: Probability of words given the class.
+- Posterior probability: Updated probability after observing the words.
+- Laplace smoothing: Prevents zero probability for unseen words.
+4. Simplest complete code
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+messages = [
+    "Win a free prize now",
+    "Claim your lottery reward",
+    "Get free cash today",
+    "Meeting scheduled tomorrow",
+    "Please submit your assignment",
+    "Let's meet for lunch",
+    "Congratulations you won money",
+    "Project meeting at college"
+]
+
+labels = [
+    "spam", "spam", "spam",
+    "ham", "ham", "ham",
+    "spam", "ham"
+]
+
+# Convert text into numerical values
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(messages)
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, labels, test_size=0.25,
+    random_state=42, stratify=labels
+)
+
+# Train model
+model = MultinomialNB()
+model.fit(X_train, y_train)
+
+# Predict
+y_pred = model.predict(X_test)
+
+print("Accuracy:",
+      accuracy_score(y_test, y_pred))
+
+# Test new message
+new_message = ["Win free cash prize"]
+new_data = vectorizer.transform(new_message)
+
+print("Prediction:", model.predict(new_data))
+
+
+
+5. Important libraries
+Library	Purpose
+CountVectorizer	Converts text into word counts
+MultinomialNB	Naïve Bayes classifier
+train_test_split	Divides data
+accuracy_score	Calculates accuracy
+
+Viva questions
+- What is Naïve Bayes? A probabilistic classification algorithm based on Bayes' theorem.
+- Why is it called naïve? It assumes conditional independence between features.
+- What is NLP? Natural Language Processing.
+- What is tokenization? Breaking text into smaller units such as words.
+- What is CountVectorizer? Converts text into a numerical word-count matrix.
+- Why Multinomial Naïve Bayes? It is suitable for word-frequency features.
+Writeup
+- Aim: To implement spam detection using Naïve Bayes.
+- Theory: Naïve Bayes uses Bayes' theorem to calculate the probability of a message belonging to a particular class.
+- Procedure: Load labelled messages, vectorize text, split data, train the classifier and predict spam or ham.
+- Result: Successfully classified messages into spam and ham.
+
+
+
+Exp6:
+Experiment 6: Feature Selection with Random Forest
+Feature Selection
+ Ensemble Learning
+
+1. What is Feature Selection?
+Feature Selection means selecting the most important input variables from a dataset.
+
+Example:
+
+Suppose a dataset contains 50 columns, but only 10 are useful for prediction.
+
+Feature Selection identifies those important 10 features.
+
+Why is it necessary?
+- Reduces unnecessary data.
+- Reduces training time.
+- Can improve model performance.
+- Reduces overfitting.
+- Makes models easier to interpret.
+2. What is Random Forest?
+Random Forest is an ensemble learning algorithm that combines multiple Decision Trees.
+
+
+
+
+
+
+
+
+medium.com
+
+
+Working:
+1. Select random samples from training data.
+2. Build multiple Decision Trees.
+3. Each tree makes a prediction.
+4. Combine predictions using majority voting for classification.
+5. Calculate feature importance.
+3. Feature Importance
+Random Forest calculates the importance of each feature based on how much it reduces impurity across trees.
+
+Features with higher importance contribute more to the model's predictions.
+4. Simplest Python code
+from sklearn.datasets import load_breast_cancer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import SelectFromModel
+from sklearn.model_selection import train_test_split
+
+# Load high-dimensional dataset
+data = load_breast_cancer()
+
+X = data.data
+y = data.target
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Random Forest
+model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42
+)
+
+model.fit(X_train, y_train)
+
+# Feature importance
+importance = model.feature_importances_
+
+for name, score in zip(data.feature_names, importance):
+    print(name, score)
+
+# Select important features
+selector = SelectFromModel(
+    model, threshold="median"
+)
+
+X_selected = selector.transform(X)
+
+print("Original Features:", X.shape[1])
+print("Selected Features:", X_selected.shape[1])
+
+5. Viva questions
+- What is an ensemble? Combining multiple models.
+- What is Random Forest? A collection of Decision Trees.
+- What is feature importance? A numerical indication of how useful a feature is to the model.
+- What is high-dimensional data? Data having a large number of features.
+- What is bagging? Training models on different bootstrap samples and combining their predictions.
+- What is the difference between Random Forest and Decision Tree? One tree vs an ensemble of trees.
+Writeup
+- Aim: To perform feature selection using Random Forest on high-dimensional data.
+- Theory: Random Forest uses multiple decision trees and estimates feature importance to identify relevant features.
+- Procedure: Load data, train Random Forest, calculate feature importance, select important features and compare feature counts.
+- Result: Successfully selected important features using Random Forest.
+
+
+Exp 7:
+Experiment 7: XGBoost on Structured Data
+Boosting
+ XGBoost
+
+1. What is XGBoost?
+XGBoost stands for Extreme Gradient Boosting.
+
+It is an advanced ensemble machine learning algorithm based on gradient-boosted decision trees.
+
+It is used for:
+- Classification.
+- Regression.
+- Structured/tabular datasets.
+- Prediction problems.
+2. What is Boosting?
+Boosting is an ensemble technique where models are trained sequentially.
+
+Each new model tries to correct the mistakes made by previous models.
+
+
+
+
+
+
+
+
+newsletter.theaiedge.io
+
+
+3. Boosting vs Bagging
+Bagging	Boosting
+Models can train independently	Models train sequentially
+Reduces variance	Reduces bias and variance
+Example: Random Forest	Example: AdaBoost, XGBoost
+
+4. Important XGBoost concepts
+- Gradient Boosting: Builds new trees to reduce prediction errors.
+- Learning Rate: Controls how much each new tree contributes.
+- Number of Estimators: Number of trees.
+- Max Depth: Maximum depth of each tree.
+- Regularization: Controls model complexity and helps prevent overfitting.
+5. Simplest Python code
+Install first if necessary:
+pip install xgboost scikit-learn
+
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from xgboost import XGBClassifier
+
+# Dataset
+data = load_breast_cancer()
+
+X = data.data
+y = data.target
+
+# Split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Model
+model = XGBClassifier(
+    n_estimators=100,
+    max_depth=3,
+    learning_rate=0.1,
+    eval_metric="logloss"
+)
+
+# Train
+model.fit(X_train, y_train)
+
+# Prediction
+y_pred = model.predict(X_test)
+
+# Evaluation
+print("Accuracy:",
+      accuracy_score(y_test, y_pred))
+
+      6. Evaluation metrics
+For classification:
+- Accuracy: Overall correct predictions.
+- Precision: How many predicted positives were actually positive.
+- Recall: How many actual positives were correctly identified.
+- F1-score: Harmonic mean of precision and recall.
+\[
+Accuracy=\frac{TP+TN}{TP+TN+FP+FN}
+\]
+
+7. Viva questions
+- What is XGBoost? An optimized gradient boosting algorithm.
+- What is boosting? Sequentially combining weak learners to improve predictions.
+- What is a weak learner? A model that performs slightly better than random guessing.
+- What is learning rate? Controls the contribution of each new tree.
+- What is regularization? A technique to control model complexity.
+- Random Forest vs XGBoost? Random Forest uses bagging; XGBoost uses boosting.
+Writeup
+- Aim: To implement XGBoost on structured data and evaluate its performance.
+- Theory: XGBoost builds decision trees sequentially to minimize a loss function and improve prediction accuracy.
+- Procedure: Load data, split it, train XGBoost, make predictions and evaluate using accuracy.
+- Result: Successfully implemented and evaluated XGBoost.
