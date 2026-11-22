@@ -1,0 +1,378 @@
+Exp 1:
+1. What is a Data Warehouse?
+A Data Warehouse is a centralized storage system used to store large amounts of historical data from different sources for analysis and decision-making.
+
+Example: A retail shop stores sales data, customer information, product details and dates to analyze its business.
+2. What is a Star Schema?
+A Star Schema is a data warehouse design consisting of:
+- One central Fact Table.
+- Multiple Dimension Tables.
+It looks like a star because dimension tables surround the fact table.
+
+Fact Table: Stores numerical measurements or business transactions.
+
+Example: Sales amount, quantity, profit.
+
+Dimension Table: Stores descriptive information.
+
+Example: Customer name, product name, date, location.
+3. Understand the structure
+DIM_DATE
+
+Date_ID, Date, Month, Year
+
+DIM_PRODUCT
+
+Product_ID, Name, Category
+
+
+DIM_CUSTOMER
+
+Customer_ID, Name, City
+
+
+
+FACT_SALES
+
+Sales_ID, Date_ID, Product_ID, Customer_ID, Quantity, Amount
+
+Conceptual structure: the fact table connects to dimension tables using foreign keys.
+4. Simplest SQL code
+CREATE TABLE Dim_Product (
+    Product_ID INT PRIMARY KEY,
+    Product_Name VARCHAR(50),
+    Category VARCHAR(50)
+);
+
+CREATE TABLE Dim_Customer (
+    Customer_ID INT PRIMARY KEY,
+    Customer_Name VARCHAR(50),
+    City VARCHAR(50)
+);
+
+CREATE TABLE Dim_Date (
+    Date_ID INT PRIMARY KEY,
+    Month VARCHAR(20),
+    Year INT
+);
+
+CREATE TABLE Fact_Sales (
+    Sales_ID INT PRIMARY KEY,
+    Product_ID INT,
+    Customer_ID INT,
+    Date_ID INT,
+    Quantity INT,
+    Amount FLOAT,
+
+    FOREIGN KEY (Product_ID)
+        REFERENCES Dim_Product(Product_ID),
+
+    FOREIGN KEY (Customer_ID)
+        REFERENCES Dim_Customer(Customer_ID),
+
+    FOREIGN KEY (Date_ID)
+        REFERENCES Dim_Date(Date_ID)
+);
+
+
+Insert and retrieve sample data:
+INSERT INTO Dim_Product
+VALUES (1, 'Fan', 'Electrical');
+
+INSERT INTO Dim_Customer
+VALUES (101, 'Rahul', 'Mumbai');
+
+INSERT INTO Dim_Date
+VALUES (202601, 'January', 2026);
+
+INSERT INTO Fact_Sales
+VALUES (1, 1, 101, 202601, 2, 5000);
+
+SELECT * FROM Fact_Sales;
+
+
+5. Important viva questions
+- What is a fact table? A table containing numerical measures and foreign keys.
+- What is a dimension table? A table containing descriptive information.
+- What is a primary key? A unique identifier for every record.
+- What is a foreign key? A key connecting two tables.
+- Why is it called a star schema? Because its structure resembles a star.
+- What is a measure? A numerical value such as sales, quantity or profit.
+Writeup for exam
+- Aim: To design and implement a Star Schema using SQL.
+- Theory: A Star Schema is a data warehouse model containing a central fact table connected to multiple dimension tables.
+- Procedure: Create dimension tables, create a fact table, establish foreign key relationships, insert sample records and execute SELECT queries.
+- Result: Successfully designed and implemented a Star Schema.
+
+
+
+Exp 2:
+Experiment 2: OLAP Operations
+OLAP
+ Databricks Community Edition
+
+1. What is OLAP?
+OLAP stands for Online Analytical Processing.
+
+It is used to analyze large datasets from multiple dimensions.
+
+Example: An electrical shop wants to analyze:
+- Total sales by year.
+- Monthly sales.
+- Sales of a particular product.
+- Sales in a particular city.
+OLAP works with multidimensional data.
+2. Four important OLAP operations
+
+
+
+
+
+
+
+
+
+
+1. Roll-up
+
+Summarizes detailed data into higher-level data.
+
+Example: Daily sales → Monthly sales → Yearly sales.
+
+
+
+
+
+
+
+
+
+
+
+
+
+2. Drill-down
+
+Goes from summarized data to detailed data.
+
+Example: Yearly sales → Monthly sales → Daily sales.
+
+
+
+
+
+
+
+
+
+
+
+
+
+3. Slice
+
+Selects one particular value of a dimension.
+
+Example: Analyze sales only for 2026.
+
+
+
+
+
+
+
+
+
+
+
+
+
+4. Dice
+
+Selects a subset using multiple dimension conditions.
+
+Example: Sales in Mumbai during 2026 for fans.
+
+
+
+3. Simplest SQL examples
+Assume a Sales table contains Year, Month, City, Product, and Amount.
+
+Roll-up:
+SELECT Year, SUM(Amount)
+FROM Sales
+GROUP BY Year;
+
+
+Drill-down:
+SELECT Year, Month, SUM(Amount)
+FROM Sales
+GROUP BY Year, Month;
+
+
+Slice:
+SELECT *
+FROM Sales
+WHERE Year = 2026;
+
+
+Dice:
+SELECT *
+FROM Sales
+WHERE Year = 2026
+AND City = 'Mumbai'
+AND Product = 'Fan';
+
+
+4. Databricks practical procedure
+1. Open Databricks Community Edition / Free workspace.
+2. Create a notebook.
+3. Select Python.
+4. Upload a publicly available CSV dataset.
+5. Load the dataset using Pandas or Spark.
+6. Perform aggregation, filtering and grouping.
+7. Display the results.
+Example PySpark:
+df = spark.read.csv(    "/FileStore/sales.csv",    header=True,    inferSchema=True)df.groupBy("Year").sum("Amount").show()df.filter(df.Year == 2026).show()df.groupBy("City", "Product").sum("Amount").show()
+
+
+
+5. Viva questions
+- OLAP full form? Online Analytical Processing.
+- OLTP vs OLAP? OLTP handles daily transactions; OLAP handles analytical queries.
+- Roll-up vs Drill-down? Summary vs detailed information.
+- Slice vs Dice? One dimension condition vs multiple dimension conditions.
+- What is a data cube? A multidimensional representation of data.
+Writeup: Aim: To perform OLAP operations on a dataset using Databricks. Theory: OLAP enables multidimensional analysis through roll-up, drill-down, slice and dice. Result: Successfully performed OLAP operations.
+
+
+
+exp 3:
+PART B – DATA PREPROCESSING
+Experiment 3: Data Cleaning, Integration, Transformation and Visualization
+Data Preprocessing
+ Python / Pandas
+
+
+This is one of the easiest experiments and is very important for viva.
+1. What is Data Preprocessing?
+Data preprocessing means converting raw, unorganized data into clean and usable data before applying machine learning algorithms.
+
+There are four major steps.
+1. Data Cleaning
+
+Remove missing values, duplicates and incorrect data.
+
+
+2. Data Integration
+
+Combine data from multiple sources or datasets.
+
+
+3. Data Transformation
+
+Convert data into a suitable format, such as normalization or encoding.
+
+
+4. Data Visualization
+
+Represent data using graphs and charts.
+
+
+2. Important Python libraries
+Library	Purpose
+Pandas	Data handling
+NumPy	Numerical operations
+Matplotlib	Graph plotting
+Seaborn	Statistical visualization
+Scikit-learn	Machine learning and preprocessing
+
+3. Simplest complete code
+Assume data.csv is available in the same folder.
+import pandas as pdimport matplotlib.pyplot as pltimport seaborn as sns# Load datasetdf = pd.read_csv("data.csv")# Display dataprint(df.head())print(df.info())print(df.describe())# Check missing valuesprint(df.isnull().sum())# Remove duplicatesdf = df.drop_duplicates()# Fill missing numerical valuesdf = df.fillna(df.mean(numeric_only=True))# Integration: combine two datasets# df = pd.concat([df1, df2])# Transformation: normalizationfrom sklearn.preprocessing import MinMaxScalerscaler = MinMaxScaler()df_scaled = df.select_dtypes(    include="number")df_scaled = pd.DataFrame(    scaler.fit_transform(df_scaled),    columns=df_scaled.columns)
+
+
+
+4. Important concepts
+- Missing values: Empty or null values.
+- Duplicates: Repeated records.
+- Normalization: Scaling values generally between 0 and 1.
+- Standardization: Converting data to mean 0 and standard deviation 1.
+- Encoding: Converting categorical values into numerical values.
+- Outliers: Unusually high or low observations.
+Viva questions
+1. Why is preprocessing necessary? To improve data quality and model performance.
+2. What is Pandas? A Python library for data manipulation.
+3. What is normalization? Scaling data to a common range.
+4. What is an outlier? A value significantly different from other observations.
+5. Difference between dropna() and fillna()? Remove missing records vs replace missing values.
+Writeup
+- Aim: To clean, integrate, transform and visualize a real-world dataset.
+- Theory: Data preprocessing improves data quality by removing errors, handling missing values and transforming features.
+- Procedure: Load the dataset, inspect it, clean missing values, integrate data, normalize numerical features and visualize the results.
+- Result: Successfully preprocessed and visualized the dataset.
+
+
+
+exp4:
+1. What is a Decision Tree?
+A Decision Tree is a supervised machine learning algorithm used for classification and regression.
+
+It works like a flowchart and makes decisions based on conditions.
+
+Example: Predict whether an email is spam or not spam based on its features.
+2. Important terminology
+- Root Node: Starting point of the tree.
+- Decision Node: A node where a condition is checked.
+- Branch: Outcome of a decision.
+- Leaf Node: Final prediction.
+3. ID3 vs CART
+ID3	CART
+Uses Entropy and Information Gain	Uses Gini or squared error
+Generally uses multiway splits	Uses binary splits
+Mainly classification	Classification and regression
+Categorical feature splitting in original form	Supports numerical and categorical handling through preprocessing
+
+Entropy: Measures impurity or uncertainty.
+\[
+Entropy(S)=-\sum p_i\log_2(p_i)
+\]
+
+Information Gain:
+\[
+IG=Entropy(parent)-Entropy(children)
+\]
+
+Gini Impurity:
+\[
+Gini=1-\sum p_i^2
+\]
+
+A lower Gini value means a purer node.
+4. Simplest Python code
+We will use the built-in Iris dataset.
+from sklearn.datasets import load_irisfrom sklearn.model_selection import train_test_splitfrom sklearn.tree import DecisionTreeClassifierfrom sklearn.metrics import accuracy_score# Load datasetdata = load_iris()X = data.datay = data.target# Split datasetX_train, X_test, y_train, y_test = train_test_split(    X, y, test_size=0.2, random_state=42)# ID3-like tree using entropymodel = DecisionTreeClassifier(    criterion="entropy",    random_state=42)model.fit(X_train, y_train)# Predictiony_pred = model.predict(X_test)print("Accuracy:", accuracy_score(y_test, y_pred))# CART using Ginicart = DecisionTreeClassifier(    criterion="gini")cart.fit(X_train, y_train)
+
+
+
+Visualize the tree:
+from sklearn.tree import plot_treeimport matplotlib.pyplot as pltplot_tree(model, filled=True)plt.show()
+
+
+
+Technical note: Scikit-learn's entropy-based tree is an ID3-style comparison, not a strict implementation of the original ID3 algorithm.
+5. Viva questions
+- What is supervised learning? Learning using labelled data.
+- What is classification? Predicting a category or class.
+- What is entropy? Measure of uncertainty.
+- What is information gain? Reduction in entropy after splitting.
+- Which criterion does ID3 use? Information Gain.
+- Which criterion does CART use? Gini Impurity for classification.
+- What is overfitting? When a model learns training data too closely and performs poorly on unseen data.
+Writeup
+- Aim: To implement Decision Tree classifiers using ID3 and CART concepts.
+- Theory: Decision Trees classify data by repeatedly splitting it based on feature conditions.
+- Algorithm: Calculate impurity, select the best feature, split the dataset and repeat until stopping conditions are met.
+- Result: Successfully implemented and evaluated Decision Tree classifiers.
+
+
