@@ -1,0 +1,533 @@
+Experiment 11: Market Basket Analysis using Apriori
+Frequent Pattern Mining
+1. What is Market Basket Analysis?
+Market Basket Analysis identifies which products are frequently purchased together.
+
+Example:
+
+Customers who buy bread may also buy butter.
+
+It is commonly used in:
+- Supermarkets.
+- E-commerce.
+- Product recommendations.
+- Cross-selling.
+
+
+
+
+
+
+
+
+medium.com
+
+
+2. What is Apriori?
+Apriori is an association rule mining algorithm used to discover frequent itemsets.
+
+It works on this principle:
+
+If an itemset is frequent, all of its non-empty subsets must also be frequent.
+
+Conversely, if an itemset is infrequent, all its supersets will also be infrequent.
+3. Important terms
+Support
+
+How frequently an itemset appears in all transactions.
+\[
+Support(A)=\frac{Transactions\ containing\ A}{Total\ transactions}
+\]
+
+Confidence
+
+How often B is purchased when A is purchased.
+\[
+Confidence(A\rightarrow B)=
+\frac{Support(A\cup B)}{Support(A)}
+\]
+
+Lift
+
+Measures how strongly two items are associated compared to their independent occurrence.
+\[
+Lift(A\rightarrow B)=
+\frac{Confidence(A\rightarrow B)}{Support(B)}
+\]
+
+Interpretation:
+- Lift greater than 1: Positive association.
+- Lift equal to 1: Independent association.
+- Lift less than 1: Negative association.
+4. Simplest Python code
+Install:
+pip install mlxtend pandas
+
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, association_rules
+
+# Transactions
+transactions = [
+    ['Milk', 'Bread'],
+    ['Bread', 'Butter'],
+    ['Milk', 'Bread', 'Butter'],
+    ['Milk', 'Butter'],
+    ['Bread', 'Milk']
+]
+
+# Convert to one-hot encoded data
+te = TransactionEncoder()
+
+encoded = te.fit(transactions).transform(transactions)
+
+df = pd.DataFrame(encoded, columns=te.columns_)
+
+# Frequent itemsets
+frequent = apriori(
+    df,
+    min_support=0.4,
+    use_colnames=True
+)
+
+print("Frequent Itemsets:")
+print(frequent)
+
+# Association rules
+rules = association_rules(
+    frequent,
+    metric="confidence",
+    min_threshold=0.5
+)
+
+print("Association Rules:")
+print(rules[['antecedents', 'consequents',
+             'support', 'confidence', 'lift']])
+
+5. Viva questions
+- What is Apriori? An algorithm for frequent itemset mining.
+- What is an itemset? A group of one or more items.
+- What is support? Frequency of an itemset in transactions.
+- What is confidence? Probability of consequent given antecedent.
+- What is lift? Strength of association compared to independent occurrence.
+- What is pruning? Removing itemsets that cannot be frequent.
+- What is the Apriori principle? All subsets of a frequent itemset must be frequent.
+Writeup
+- Aim: To perform Market Basket Analysis using the Apriori algorithm.
+- Theory: Apriori discovers frequent itemsets and generates association rules based on support, confidence and lift.
+- Procedure: Create transactions, encode items, generate frequent itemsets, generate association rules and analyze the results.
+- Result: Successfully identified frequently purchased item combinations.
+
+
+
+
+xperiment 12: FP-Growth Algorithm
+Frequent Pattern Mining
+1. What is FP-Growth?
+FP-Growth stands for Frequent Pattern Growth.
+
+It is used to discover frequent itemsets without generating large numbers of candidate itemsets like Apriori.
+2. What is an FP-Tree?
+An FP-Tree is a compact tree structure used to represent transaction data.
+
+
+
+
+
+
+
+
+mdpi.com
+
+
+3. Working of FP-Growth
+1. Scan the database and calculate item frequencies.
+2. Remove items below minimum support.
+3. Sort frequent items by descending frequency.
+4. Construct an FP-Tree.
+5. Generate conditional pattern bases.
+6. Mine frequent itemsets recursively.
+4. Apriori vs FP-Growth
+Apriori	FP-Growth
+Generates candidate itemsets	Does not generate candidates in the same way
+Repeated database scans	Usually two initial database scans
+Can be slower on large datasets	Often faster on large datasets
+Uses support-based pruning	Uses FP-Tree
+
+5. Simplest Python code
+Use the same transactions from Experiment 11.
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import fpgrowth
+
+transactions = [
+    ['Milk', 'Bread'],
+    ['Bread', 'Butter'],
+    ['Milk', 'Bread', 'Butter'],
+    ['Milk', 'Butter'],
+    ['Bread', 'Milk']
+]
+
+# Encode transactions
+te = TransactionEncoder()
+
+encoded = te.fit(transactions).transform(transactions)
+
+df = pd.DataFrame(encoded, columns=te.columns_)
+
+# FP Growth
+frequent = fpgrowth(
+    df,
+    min_support=0.4,
+    use_colnames=True
+)
+
+print("Frequent Itemsets:")
+print(frequent)
+
+If you want association rules too, use the same association_rules() function from Experiment 11 on the resulting frequent itemsets.
+6. Viva questions
+- What is FP-Growth? Frequent Pattern Growth algorithm.
+- What is an FP-Tree? A compact tree representing transaction data.
+- What is conditional pattern base? The set of prefix paths associated with an item.
+- Why is FP-Growth faster than Apriori? It avoids extensive candidate generation.
+- Does FP-Growth generate candidate itemsets? No, it mines patterns directly from the FP-Tree.
+Writeup
+- Aim: To implement FP-Growth for frequent pattern mining.
+- Theory: FP-Growth uses an FP-Tree to efficiently discover frequent itemsets without candidate generation.
+- Procedure: Encode transactions, generate the FP-Tree internally, apply FP-Growth and display frequent itemsets.
+- Result: Successfully discovered frequent patterns using FP-Growth.
+
+
+
+
+
+
+PART F – SCALABLE FREQUENT PATTERN MINING
+Experiment 13: Multistage and Multihash PCY Algorithm
+PCY Algorithm
+ Large Datasets
+
+
+This is slightly different from the previous two experiments. Here, the focus is on reducing memory usage while finding frequent pairs in large transaction datasets.
+1. What is PCY?
+PCY stands for Park-Chen-Yu algorithm.
+
+It is an improvement over the Apriori algorithm for finding frequent item pairs.
+
+It uses hashing and a bitmap to reduce the number of candidate pairs.
+2. Why do we need PCY?
+Suppose a supermarket has 1 lakh transactions and 10,000 different products.
+
+Checking every possible pair requires huge memory.
+
+PCY uses hash buckets to eliminate unlikely pairs.
+3. How does PCY work?
+Pass 1:
+1. Count individual item frequencies.
+2. Generate all pairs in each transaction.
+3. Hash pairs into buckets.
+4. Count bucket frequencies.
+5. Convert bucket counts into a bitmap.
+Pass 2:
+1. Count individual items again.
+2. Consider pairs whose individual items are frequent.
+3. Check whether their hash bucket is frequent.
+4. Count only the remaining candidate pairs.
+5. Output frequent pairs.
+4. Important terms
+- Hashing: Mapping an item pair to a bucket number.
+- Bucket: Storage location for hashed pairs.
+- Bitmap: Array of 0s and 1s indicating whether a bucket is frequent.
+- Candidate Pair: A pair that may satisfy minimum support.
+- Pruning: Eliminating unnecessary candidates.
+5. Multistage PCY
+Multistage PCY uses additional hashing stages.
+- First stage: Build a bitmap using the first hash function.
+- Second stage: Use another hash function to build a second bitmap for remaining candidate pairs.
+- Final stage: Count only pairs satisfying all bitmap conditions.
+This further reduces candidate pairs.
+6. Multihash PCY
+Multihash PCY uses multiple independent hash tables in the first pass.
+
+A pair must hash to frequent buckets in all the hash tables to survive pruning.
+7. Simplest Python implementation
+This program demonstrates basic PCY and the multihash idea.
+
+from itertools import combinations
+from collections import Counter
+
+transactions = [
+    ['A', 'B', 'C'],
+    ['A', 'B'],
+    ['A', 'C'],
+    ['B', 'C'],
+    ['A', 'B', 'C']
+]
+
+min_support = 2
+bucket_size = 5
+
+# Hash functions
+def hash1(pair):
+    return sum(ord(x) for x in pair) % bucket_size
+
+def hash2(pair):
+    return (ord(pair[0]) * 3 +
+            ord(pair[1]) * 7) % bucket_size
+
+# First pass
+item_count = Counter()
+bucket1 = Counter()
+bucket2 = Counter()
+
+for t in transactions:
+    item_count.update(t)
+
+    for pair in combinations(sorted(t), 2):
+        bucket1[hash1(pair)] += 1
+        bucket2[hash2(pair)] += 1
+
+# Create bitmaps
+bitmap1 = [
+    bucket1[i] >= min_support
+    for i in range(bucket_size)
+]
+
+bitmap2 = [
+    bucket2[i] >= min_support
+    for i in range(bucket_size)
+]
+
+# Second pass
+pair_count = Counter()
+
+for t in transactions:
+    for pair in combinations(sorted(t), 2):
+
+        if (item_count[pair[0]] >= min_support
+            and item_count[pair[1]] >= min_support
+            and bitmap1[hash1(pair)]
+            and bitmap2[hash2(pair)]):
+
+            pair_count[pair] += 1
+
+# Frequent pairs
+frequent_pairs = {
+    pair: count
+    for pair, count in pair_count.items()
+    if count >= min_support
+}
+
+print("Bitmap 1:", bitmap1)
+print("Bitmap 2:", bitmap2)
+print("Frequent Pairs:", frequent_pairs)
+
+This is a simplified two-hash PCY demonstration. The same idea can be extended to more hash tables or additional stages.
+8. Viva questions
+- What is PCY? An algorithm that uses hashing to efficiently find frequent pairs.
+- What is hashing? Mapping data to a bucket using a hash function.
+- What is a bitmap? A binary array representing frequent and infrequent buckets.
+- Why is PCY better than Apriori? It reduces candidate pairs and memory requirements.
+- What is Multistage PCY? PCY with additional hashing stages.
+- What is Multihash PCY? PCY using multiple hash tables.
+- What does bit 1 mean? The bucket is frequent.
+- What does bit 0 mean? The bucket is infrequent.
+Writeup
+- Aim: To implement Multistage and Multihash PCY for frequent pair mining on a large dataset.
+- Theory: PCY uses hashing and bitmaps to reduce the number of candidate item pairs and memory consumption.
+- Procedure: Generate transactions, count items and hash buckets, construct bitmaps, filter candidate pairs and identify frequent pairs.
+- Result: Successfully implemented PCY-based frequent pair mining.
+
+
+
+
+
+
+
+
+PART G – DATA MINING TOOLS
+Experiment 14: Supervised, Unsupervised and Semi-Supervised Learning using Orange, RapidMiner and WEKA
+Data Mining Tools
+This experiment is different because it focuses on using graphical data mining software rather than writing Python code.
+1. What are the three learning types?
+1. Supervised Learning
+
+Uses labelled data to predict an output.
+
+Examples:
+- Decision Tree.
+- Naïve Bayes.
+- Random Forest.
+- Logistic Regression.
+2. Unsupervised Learning
+
+Uses unlabelled data to find hidden patterns.
+
+Examples:
+- K-Means.
+- Hierarchical Clustering.
+- DBSCAN.
+3. Semi-Supervised Learning
+
+Uses a small amount of labelled data and a large amount of unlabelled data.
+
+Example: A dataset has 1,000 images, but only 100 are labelled. The model uses those 100 labelled images along with the remaining unlabelled images.
+2. Three important tools
+
+
+
+
+
+
+
+
+
+
+Orange Data Mining
+
+Visual data mining software that uses drag-and-drop widgets.
+
+Used for data preprocessing, classification, clustering and visualization.
+
+Website: Orange
+
+
+
+
+
+
+
+
+
+
+
+
+
+RapidMiner
+
+A visual workflow-based data science platform.
+
+Used for data preparation, model training and evaluation.
+
+Website: Altair AI Studio
+
+
+
+
+
+
+
+
+
+
+
+
+
+WEKA
+
+Waikato Environment for Knowledge Analysis.
+
+Used for classification, clustering, association rules and preprocessing.
+
+Website: WEKA
+
+
+For supervised learning:
+1. Open Orange.
+2. Drag the File widget.
+3. Load a labelled dataset such as Iris.
+4. Connect it to Data Table.
+5. Add a Decision Tree or Naïve Bayes widget.
+6. Add Test & Score.
+7. Connect the learner and data.
+8. Add Confusion Matrix to view results.
+For unsupervised learning:
+1. Load an unlabelled dataset.
+2. Connect it to K-Means.
+3. Select the number of clusters.
+4. Connect to Scatter Plot.
+5. Visualize the clusters.
+For semi-supervised learning:
+1. Load labelled and unlabelled records.
+2. Use a semi-supervised approach such as label propagation, if available through the software or add-ons.
+3. Train using the labelled records.
+4. Estimate labels for unlabelled records.
+5. Evaluate against known labels where available.
+4. How to perform experiments in WEKA
+
+
+
+
+
+
+
+
+erp-information.com
+
+
+1. Open WEKA.
+2. Select Explorer.
+3. Go to Preprocess.
+4. Open a CSV or ARFF dataset.
+5. Go to Classify.
+6. Select an algorithm such as J48 or NaiveBayes.
+7. Select test options such as 10-fold cross-validation.
+8. Click Start.
+9. View accuracy, precision, recall and confusion matrix.
+For clustering:
+1. Select Cluster.
+2. Choose SimpleKMeans.
+3. Set the number of clusters.
+4. Click Start.
+5. View the cluster assignments.
+5. How to perform experiments in RapidMiner
+
+
+
+
+
+
+
+
+docs.rapidminer.com
+
+
+1. Open RapidMiner / Altair AI Studio.
+2. Create a new process.
+3. Import a dataset.
+4. Add a Split Data operator.
+5. Add Decision Tree or Naïve Bayes.
+6. Connect the training data.
+7. Add Apply Model.
+8. Add Performance.
+9. Run the process and view results.
+6. Important viva questions
+- What is Orange? A visual data mining and machine learning tool.
+- What is WEKA? Waikato Environment for Knowledge Analysis.
+- What is RapidMiner? A workflow-based data science tool.
+- What is ARFF? Attribute-Relation File Format used by WEKA.
+- What is semi-supervised learning? Learning from both labelled and unlabelled data.
+- What is cross-validation? A method of evaluating a model by dividing data into multiple folds.
+- What is a confusion matrix? A table showing actual vs predicted classes.
+Writeup
+- Aim: To implement supervised, unsupervised and semi-supervised learning algorithms using data mining tools.
+- Theory: Data mining tools provide graphical and programming interfaces to preprocess data, train models and evaluate results.
+- Procedure: Load a dataset, preprocess it, select a suitable learning algorithm, execute the model and evaluate the results.
+- Result: Successfully implemented data mining techniques using available tools.
+
+
+
+
+
+
+
+
+
+Metric	Formula	Meaning
+Accuracy	\((TP+TN)/Total\)	Overall correct predictions
+Precision	\(TP/(TP+FP)\)	Correct positive predictions
+Recall	\(TP/(TP+FN)\)	Actual positives identified
+F1 Score	\(2PR/(P+R)\)	Balance of precision and recall
+
+Program:
