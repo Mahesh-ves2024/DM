@@ -1,0 +1,242 @@
+Experiment 8: K-Means Clustering and Elbow Method
+Clustering
+1. What is K-Means?
+K-Means is an unsupervised learning algorithm used to divide data into K clusters.
+
+Example: Grouping customers based on income and spending habits.
+
+
+
+
+
+
+
+
+mbrenndoerfer.com
+
+
+2. How does K-Means work?
+1. Choose the number of clusters K.
+2. Initialize K centroids.
+3. Calculate the distance of every data point from each centroid.
+4. Assign points to the nearest centroid.
+5. Recalculate centroid positions.
+6. Repeat until clusters stop changing significantly.
+3. What is a centroid?
+The centroid is the center point of a cluster, calculated using the mean of its data points.
+4. What is the Elbow Method?
+The Elbow Method helps determine the optimal number of clusters.
+
+It plots K against WCSS (Within-Cluster Sum of Squares).
+\[
+WCSS=\sum_{i=1}^{K}\sum_{x\in C_i}(x-\mu_i)^2
+\]
+
+Choose the K where the reduction in WCSS starts slowing down, creating an elbow-like shape.
+5. Simplest Python code
+from sklearn.datasets import make_blobs
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+
+# Generate sample data
+X, y = make_blobs(
+    n_samples=200,
+    centers=3,
+    random_state=42
+)
+
+# Elbow method
+wcss = []
+
+for k in range(1, 11):
+    model = KMeans(
+        n_clusters=k,
+        random_state=42,
+        n_init=10
+    )
+
+    model.fit(X)
+    wcss.append(model.inertia_)
+
+plt.plot(range(1, 11), wcss, marker='o')
+plt.xlabel("Number of Clusters")
+plt.ylabel("WCSS")
+plt.title("Elbow Method")
+plt.show()
+
+# Final clustering
+model = KMeans(n_clusters=3, random_state=42, n_init=10)
+
+labels = model.fit_predict(X)
+
+plt.scatter(X[:, 0], X[:, 1], c=labels)
+plt.show()
+
+6. Viva questions
+- What is clustering? Grouping similar data points.
+- What is K? Number of clusters.
+- What is centroid? Center of a cluster.
+- What is WCSS? Sum of squared distances of points from their cluster centroids.
+- Why Elbow Method? To identify a suitable K.
+- Is K-Means supervised? No, it is unsupervised.
+Writeup
+- Aim: To implement K-Means clustering and determine optimal K using the Elbow Method.
+- Theory: K-Means partitions data into K clusters based on distance from centroids.
+- Procedure: Generate/load data, calculate WCSS for different K values, plot the Elbow graph and perform clustering.
+- Result: Successfully grouped data points into clusters.
+
+
+Experiment 9: Agglomerative Hierarchical Clustering
+Hierarchical Clustering
+1. What is Hierarchical Clustering?
+It is an unsupervised algorithm that groups similar data points into a hierarchy of clusters.
+
+There are two types:
+1. Agglomerative: Bottom-up approach.
+2. Divisive: Top-down approach.
+Agglomerative is required in your experiment.
+2. How does Agglomerative Clustering work?
+1. Initially, every data point is treated as an individual cluster.
+2. Find the two closest clusters.
+3. Merge them.
+4. Repeat the process.
+5. Stop when the required number of clusters is reached.
+
+
+
+
+
+
+
+
+wandb.ai
+
+
+3. What is a Dendrogram?
+A Dendrogram is a tree-like diagram showing how clusters are merged at different distances.
+
+It helps determine the number of clusters by cutting the tree at a suitable height.
+4. Linkage methods
+Method	Meaning
+Single	Minimum distance between clusters
+Complete	Maximum distance between clusters
+Average	Average distance
+Ward	Minimizes increase in within-cluster variance
+
+5. Simplest Python code
+from sklearn.datasets import load_iris
+from sklearn.cluster import AgglomerativeClustering
+from scipy.cluster.hierarchy import dendrogram, linkage
+import matplotlib.pyplot as plt
+
+# Dataset
+data = load_iris()
+X = data.data
+
+# Dendrogram
+Z = linkage(X[:30], method='ward')
+
+dendrogram(Z)
+plt.title("Dendrogram")
+plt.xlabel("Data Points")
+plt.ylabel("Distance")
+plt.show()
+
+# Clustering
+model = AgglomerativeClustering(n_clusters=3)
+
+labels = model.fit_predict(X)
+
+print("Cluster Labels:")
+print(labels)
+
+6. Viva questions
+- What is hierarchical clustering? A clustering method that creates a hierarchy of groups.
+- What is agglomerative? Bottom-up clustering.
+- What is divisive? Top-down clustering.
+- What is a dendrogram? A tree diagram representing cluster merging.
+- What is linkage? The method used to calculate distances between clusters.
+- K-Means vs Hierarchical? K-Means requires K in advance; hierarchical clustering builds a hierarchy and can be inspected using a dendrogram.
+Writeup
+- Aim: To perform Agglomerative Hierarchical Clustering and visualize clusters using a dendrogram.
+- Theory: Agglomerative clustering starts with individual data points and repeatedly merges the closest clusters.
+- Procedure: Load data, calculate linkage, plot dendrogram and perform clustering.
+- Result: Successfully performed hierarchical clustering and visualized the dendrogram.
+
+
+
+
+
+Experiment 10: DBSCAN Clustering
+Density-Based Clustering
+1. What is DBSCAN?
+DBSCAN stands for:
+
+Density-Based Spatial Clustering of Applications with Noise.
+
+It is an unsupervised clustering algorithm that groups data points based on their density.
+
+Its biggest advantage is that it can identify noise and outliers.
+2. Important parameters
+1. Epsilon (eps)
+
+Maximum distance between two points to be considered neighbours.
+
+2. MinPts
+
+Minimum number of neighbouring points required to form a dense region.
+3. Three types of points
+Point	Meaning
+Core Point	Has at least MinPts points in its neighbourhood, including itself
+Border Point	Near a core point but has insufficient neighbours to be core
+Noise Point	Does not belong to any cluster
+
+4. How DBSCAN works
+1. Select an unvisited point.
+2. Find its neighbours within epsilon.
+3. If neighbours are fewer than MinPts, mark it as noise temporarily.
+4. If enough neighbours exist, form a cluster.
+5. Expand the cluster by checking neighbouring points.
+6. Repeat until all points are processed.
+5. Simplest Python code
+from sklearn.datasets import make_moons
+from sklearn.cluster import DBSCAN
+import matplotlib.pyplot as plt
+
+# Generate data
+X, y = make_moons(
+    n_samples=300,
+    noise=0.08,
+    random_state=42
+)
+
+# DBSCAN
+model = DBSCAN(
+    eps=0.2,
+    min_samples=5
+)
+
+labels = model.fit_predict(X)
+
+# Display clusters
+plt.scatter(X[:, 0], X[:, 1], c=labels)
+plt.title("DBSCAN Clustering")
+plt.show()
+
+print("Cluster Labels:", set(labels))
+print("Noise Points:", list(labels).count(-1))
+
+6. Viva questions
+- Full form of DBSCAN? Density-Based Spatial Clustering of Applications with Noise.
+- What is eps? Neighbourhood radius.
+- What is MinPts? Minimum number of points required for a core point.
+- What does label -1 indicate? Noise or outlier.
+- Can DBSCAN identify outliers? Yes.
+- Does DBSCAN require K? No.
+- K-Means vs DBSCAN? K-Means is centroid-based; DBSCAN is density-based.
+Writeup
+- Aim: To implement DBSCAN for clustering and identifying noise/outliers.
+- Theory: DBSCAN groups closely packed points based on density and identifies isolated points as noise.
+- Procedure: Load data, specify eps and MinPts, fit DBSCAN, visualize clusters and identify noise points.
+- Result: Successfully performed density-based clustering and identified outliers.
+
